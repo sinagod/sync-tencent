@@ -19,15 +19,19 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: "安装依赖和serverless工具"
+      - name: "安装依赖"
         run: |
           npm install
-          sudo npm install serverless -g
+          npm install tencentcloud-sdk-nodejs
+          npm install js-yaml
+          
       - name: "将Secrets里面配置的变量添加到severless.yml里面作为环境变量"
         run: |
           if [ $BAIDU_COOKIE ]; then sed -i "/variables/a\      BAIDU_COOKIE: $BAIDU_COOKIE" serverless.yml; fi;
           if [ $BAIDU_CASH ]; then sed -i "/variables/a\      BAIDU_CASH: $BAIDU_CASH" serverless.yml; fi;
           if [ $BAIDU_TASK ]; then sed -i "/variables/a\      BAIDU_TASK: $BAIDU_TASK" serverless.yml; fi;
+          if [ $TENCENTSCF_SOURCE_TYPE ]; then sed -i "/variables/a\      TENCENTSCF_SOURCE_TYPE: $TENCENTSCF_SOURCE_TYPE" serverless.yml; fi;
+          if [ $TENCENTSCF_SOURCE_URL ]; then sed -i "/variables/a\      TENCENTSCF_SOURCE_URL: $TENCENTSCF_SOURCE_URL" serverless.yml; fi;
           if [ $PUSH_KEY ]; then sed -i "/variables/a\      PUSH_KEY: $PUSH_KEY" serverless.yml; fi;
           if [ $BARK_PUSH ]; then sed -i "/variables/a\      BARK_PUSH: $BARK_PUSH" serverless.yml; fi;
           if [ $BARK_SOUND ]; then sed -i "/variables/a\      BARK_SOUND: $BARK_SOUND" serverless.yml; fi;
@@ -41,6 +45,8 @@ jobs:
           BAIDU_COOKIE: ${{ secrets.BAIDU_COOKIE }}
           BAIDU_CASH: ${{ secrets.BAIDU_CASH }}
           BAIDU_TASK: ${{ secrets.BAIDU_TASK }}
+          TENCENTSCF_SOURCE_TYPE: ${{ secrets.TENCENTSCF_SOURCE_TYPE}}
+          TENCENTSCF_SOURCE_URL: ${{ secrets.TENCENTSCF_SOURCE_URL}}
           PUSH_KEY: ${{ secrets.PUSH_KEY}}
           BARK_PUSH: ${{ secrets.BARK_PUSH}}
           BARK_SOUND: ${{ secrets.BARK_SOUND}}
@@ -49,11 +55,16 @@ jobs:
           DD_BOT_TOKEN: ${{ secrets.DD_BOT_TOKEN}}
           DD_BOT_SECRET: ${{ secrets.DD_BOT_SECRET}}
 
+      - name: "压缩文件夹"
+        run: zip -r myfile.zip ./*
       - name: "部署到腾讯云函数"
-        run: serverless deploy
+        run: node tencentscf.js
         env:
           STAGE: dev
           SERVERLESS_PLATFORM_VENDOR: tencent
           TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
           TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
+          TENCENT_REGION: ${{ secrets.SCF_REGION }}
+          TENCENT_FUNCTION_NAME: ${{ secrets.TENCENT_FUNCTION_NAME }}
           
+
