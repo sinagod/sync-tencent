@@ -27,4 +27,4 @@ inputs:
           name: baidu_cash
           cronExpression: "*/2 * 5-7 * * ? *"
           enable: true
-          argument: jd_blueCoin&jd_club_lottery&jd_car_exchange
+          argument: baidu_cash
