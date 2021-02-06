@@ -1,4 +1,6 @@
 
+
+
 name: 百度极速版
 
 on:
@@ -16,20 +18,24 @@ jobs:
         TZ: Asia/shanghai
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        run: |
+          git clone https://github.com/sinagod/sync-tencent.git ~/JavaScript
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
       - name: npm install
-        run: |
-          npm install
-      - name: '运行 【百度极速】'
         if: env.BAIDU_COOKIE
         run: |
+          cd ~/JavaScript
+          npm install
+      - name: '运行 【百度极速版】'
+        if: env.BAIDU_COOKIE
+        run: |
+          cd ~/JavaScript
           node baidu_speed.js
+
         env:
-          BAIDU_CASH: ${{ secrets.BAIDU_CASH }}
           PUSH_KEY: ${{ secrets.PUSH_KEY }}
           BARK_PUSH: ${{ secrets.BARK_PUSH }}
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
